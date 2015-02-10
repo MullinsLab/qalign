@@ -1,0 +1,34 @@
+#!/bin/bash
+using="$1"
+A="$2"
+B="$3"
+shift 3
+
+function fasta() {
+    printf '>%s\n%s\n' "$@"
+}
+
+case "$using" in
+    needle|diffseq)
+        $using \
+            -asequence <(fasta A "$A") \
+            -bsequence <(fasta B "$B") \
+            -snucleotide1 -sformat1 fasta \
+            -snucleotide2 -sformat2 fasta \
+            -stdout \
+            -auto \
+            "$@"
+        ;;
+    blast)
+        blastn \
+            -subject <(fasta A "$A") \
+            -query   <(fasta B "$B") \
+            -outfmt 1 \
+            "$@"
+        ;;
+    *)
+        [[ -n "$using" ]] \
+            && echo "Unknown method '$using'" >&2
+        echo "usage: $(basename $0) <blast|needle|diffseq> <A> <B>" >&2
+        exit 1
+esac
