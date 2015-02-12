@@ -5,7 +5,11 @@ B="$3"
 shift 3
 
 function fasta() {
-    printf '>%s\n%s\n' "$@"
+    if [[ -e "$2" && -f "$2" ]]; then
+        cat "$2"
+    else
+        printf '>%s\n%s\n' "$@"
+    fi
 }
 
 case "$using" in
