@@ -12,6 +12,12 @@ function fasta() {
     fi
 }
 
+if [ -t 1 ]; then
+    PAGER=${PAGER:-less -SRFXi}
+else
+    PAGER=cat
+fi
+
 case "$using" in
     needle|diffseq|water)
         $using \
@@ -21,14 +27,16 @@ case "$using" in
             -snucleotide2 -sformat2 fasta \
             -stdout \
             -auto \
-            "$@"
+            "$@" \
+            | $PAGER
         ;;
     blast)
         blastn \
             -subject <(fasta A "$A") \
             -query   <(fasta B "$B") \
             -outfmt 1 \
-            "$@"
+            "$@" \
+            | $PAGER
         ;;
     *)
         [[ -n "$using" ]] \
