@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e -o pipefail
+
 using="$1"
 A="$2"
 B="$3"
@@ -6,7 +8,11 @@ shift 3
 
 function fasta() {
     if [[ $2 =~ ^/ ]] || [[ -e "$2" && -f "$2" ]]; then
-        cat "$2"
+        if [[ $2 =~ .f(ast)?q$ ]]; then
+            recs fromfastq "$2" | recs tofasta --id name
+        else
+            cat "$2"
+        fi
     else
         printf '>%s\n%s\n' "$@"
     fi
