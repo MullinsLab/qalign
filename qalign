@@ -44,9 +44,16 @@ case "$using" in
             "$@" \
             | $PAGER
         ;;
+    muscle)
+        muscle \
+            -in <(cat <(fasta A "$A") <(fasta B "$B")) \
+            -quiet \
+            "$@" \
+            | $PAGER
+        ;;
     *)
         [[ -n "$using" ]] \
             && echo "Unknown method '$using'" >&2
-        echo "usage: $(basename $0) <blast|needle|diffseq> <A> <B>" >&2
+        echo "usage: $(basename $0) <blast|needle|diffseq|muscle> <A> <B>" >&2
         exit 1
 esac
