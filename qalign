@@ -37,11 +37,26 @@ case "$using" in
             | $PAGER
         ;;
     blast)
+        if [[ ! "$@" =~ -outfmt ]]; then
+            opts="-outfmt 1"
+        fi
         blastn \
             -subject <(fasta A "$A") \
             -query   <(fasta B "$B") \
-            -outfmt 1 \
+            $opts \
             "$@" \
+            | $PAGER
+        ;;
+    blast-table)
+        fields=query,subject,identity,length,mismatches,gaps_opened,qstart,qend,sstart,send,evalue,bitscore
+        blastn \
+            -subject <(fasta A "$A") \
+            -query   <(fasta B "$B") \
+            -outfmt 6 \
+            "$@" \
+            | recs fromcsv -d $'\t' -k $fields \
+            | recs sort -k evalue=num \
+            | recs totable -k $fields \
             | $PAGER
         ;;
     muscle)
