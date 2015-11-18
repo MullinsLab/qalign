@@ -1,10 +1,10 @@
 #!/bin/bash
-set -e -o pipefail
-
 using="$1"
 A="$2"
 B="$3"
 shift 3
+
+set -e -o pipefail
 
 function fasta() {
     if [[ $2 =~ ^/ ]] || [[ -e "$2" && -f "$2" ]]; then
