@@ -41,8 +41,8 @@ case "$using" in
             opts="-outfmt 1"
         fi
         blastn \
-            -subject <(fasta A "$A") \
-            -query   <(fasta B "$B") \
+            -subject <(fasta SUBJECT "$A") \
+            -query   <(fasta QUERY   "$B") \
             $opts \
             "$@" \
             | $PAGER
@@ -50,8 +50,8 @@ case "$using" in
     blast-table)
         fields=query,subject,identity,length,mismatches,gaps_opened,qstart,qend,sstart,send,evalue,bitscore
         blastn \
-            -subject <(fasta A "$A") \
-            -query   <(fasta B "$B") \
+            -subject <(fasta SUBJECT "$A") \
+            -query   <(fasta QUERY   "$B") \
             -outfmt 6 \
             "$@" \
             | recs fromcsv -d $'\t' -k $fields \
