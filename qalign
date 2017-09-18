@@ -18,6 +18,26 @@ function fasta() {
     fi
 }
 
+function blast() {
+    local A="$1"
+    local B="$2"
+    shift 2
+
+    if [[ -f "$A.nhr" && -f "$A.nin" && -f "$A.nsq" ]]; then
+        # It looks like we have a blast database, so let's use -db instead
+        # of -subject.
+        blastn \
+            -db "$A" \
+            -query <(fasta QUERY "$B") \
+            "$@"
+    else
+        blastn \
+            -subject <(fasta SUBJECT "$A") \
+            -query   <(fasta QUERY   "$B") \
+            "$@"
+    fi
+}
+
 if [ -t 1 ]; then
     PAGER=${PAGER:-less -SRFXi}
 else
@@ -40,20 +60,13 @@ case "$using" in
         if [[ ! "$@" =~ -outfmt ]]; then
             opts="-outfmt 1"
         fi
-        blastn \
-            -subject <(fasta SUBJECT "$A") \
-            -query   <(fasta QUERY   "$B") \
-            $opts \
-            "$@" \
-            | $PAGER
+
+        blast "$A" "$B" $opts "$@" | $PAGER
         ;;
     blast-table)
         fields=query,subject,identity,length,mismatches,gaps_opened,qstart,qend,sstart,send,evalue,bitscore
-        blastn \
-            -subject <(fasta SUBJECT "$A") \
-            -query   <(fasta QUERY   "$B") \
-            -outfmt 6 \
-            "$@" \
+
+        blast "$A" "$B" -outfmt 6 "$@" \
             | recs fromcsv -d $'\t' -k $fields \
             | recs sort -k evalue=num \
             | recs totable -k $fields \
