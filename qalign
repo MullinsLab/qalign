@@ -45,7 +45,7 @@ else
 fi
 
 case "$using" in
-    needle|diffseq|water)
+    needle|diffseq|water|matcher)
         $using \
             -asequence <(fasta A "$A") \
             -bsequence <(fasta B "$B") \
@@ -79,9 +79,22 @@ case "$using" in
             "$@" \
             | $PAGER
         ;;
+    mafft)
+        mafft \
+            "$@" \
+            <(cat <(fasta A "$A") <(fasta B "$B")) \
+            | $PAGER
+        ;;
+    diff)
+        git diff \
+            --no-index --color "$@" \
+            $(fasta seq "$A" | tmp) \
+            $(fasta seq "$B" | tmp) \
+            | grep -vE '^[^ ]*(diff --git|index )'
+        ;;
     *)
         [[ -n "$using" ]] \
             && echo "Unknown method '$using'" >&2
-        echo "usage: $(basename $0) <blast|needle|diffseq|muscle> <A> <B>" >&2
+        echo "usage: $(basename $0) <blast|blast-table|needle|water|diffseq|muscle|mafft|diff> <A> <B>" >&2
         exit 1
 esac
